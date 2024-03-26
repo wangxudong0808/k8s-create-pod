@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+    name: test1-cronjob
+spec:
+    successfulJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 1
+    schedule: '*/1 * * * *'
+    jobTemplate:
+        spec:
+            template:
+               metadata:
+                   name: test1-cronjob
+               spec:
+                   restartPolicy: OnFailure
+                   containers:
+                   - name: test1
+                     image: centos:7
+                     imagePullPolicy: IfNotPresent
+                     command:
+                     - "/bin/bash"
+                     - "-c"
+                     - "for i in 1 2 3 4 5;do echo $i;done"

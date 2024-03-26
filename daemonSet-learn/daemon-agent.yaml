@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+    name: test-daemont
+spec:
+    selector:
+        matchLabels:
+            app: daemon-agent
+    template:
+        metadata:
+            labels:
+                app: daemon-agent
+        spec:
+            containers:
+            - name: daemon-test-agent
+              image: centos:7
+              imagePullPolicy: IfNotPresent
+              command:
+              - sleep
+              - "3600"
