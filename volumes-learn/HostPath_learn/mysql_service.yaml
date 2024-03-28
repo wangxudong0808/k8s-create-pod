@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: mysql-service
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            app: service-mysql
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxSurge: 2
+            maxUnavailable: 1
+    template:
+        metadata:
+            labels:
+                app: service-mysql
+        spec:
+            containers:
+            - name: mysql
+              image: mysql:5.7
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 3306
+              env:
+              - name: MYSQL_ROOT_PASSWORD
+                value: "DD.08.dd"
+              - name: MYSQL_DATABASE
+                value: "wordpress"
+              - name: MYSQL_USER
+                value: "admin"
+              - name: MYSQL_PASSWORD
+                value: "DD.08.dd"
+              volumeMounts:
+                   - name: mysql-volume
+                     mountPath: /var/lib/mysql
+            volumes:
+              - name: mysql-volume
+                hostPath:
+                    path: /data
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: mysql-service
+spec:
+        ports:
+        - port: 3306
+        selector:
+                app: service-mysql

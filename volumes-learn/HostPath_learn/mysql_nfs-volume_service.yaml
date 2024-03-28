@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: mysql-nfs-service
+spec:
+    replicas: 12
+    selector:
+        matchLabels:
+            app: service-nfs-mysql
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxSurge: 2
+            maxUnavailable: 1
+    template:
+        metadata:
+            labels:
+                app: service-nfs-mysql
+        spec:
+            containers:
+            - name: mysql-nfs
+              image: mysql:5.7
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 3306
+              env:
+              - name: MYSQL_ROOT_PASSWORD
+                value: "DD.08.dd"
+              - name: MYSQL_DATABASE
+                value: "wordpress"
+              - name: MYSQL_USER
+                value: "admin"
+              - name: MYSQL_PASSWORD
+                value: "DD.08.dd"
+              volumeMounts:
+                   - name: mysql-volume-nfs
+                     mountPath: /var/lib/mysql
+            volumes:
+              - name: mysql-volume-nfs
+                nfs:
+                    server: "192.168.7.24"
+                    path: "/data"
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: mysql-svc
+spec:
+        ports:
+        - port: 3306
+        selector:
+                app: service-nfs-mysql

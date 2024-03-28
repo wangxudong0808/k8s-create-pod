@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: nfs-mysql-state
+spec:
+    capacity:
+       storage: 2G
+    accessModes:
+       - ReadWriteMany    #用户对存储的访问权限
+    persistentVolumeReclaimPolicy: Recycle
+    nfs:
+        server: 192.168.7.24
+        path: /db1
