@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: mysql-slave-config
+    namespace: wordpress-namespace
+data:
+    my.cnf: |
+      [mysqld]
+      server_id=11
+      log_bin=master

@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: wordpress-ingress
+    namespace: wordpress-namespace
+spec:
+        ingressClassName: nginx  # ingress是基于什么实现的
+        rules:
+        - host: wordpress.linux.com
+          http:
+                  paths:
+                  - pathType: Prefix
+                    path: "/"
+                    backend:
+                        service:
+                           name: wordpress-service  #后端web真实的service（服务名）
+                           port:
+                               number: 80

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: redis
+    namespace: wordpress-namespace
+spec:
+    replicas: 1
+    selector:
+       matchLabels:
+           redis-web: redis
+    template:
+       metadata:
+           labels:
+              redis-web: redis
+       spec:
+           containers:
+           - name: wordpress-redis
+             image: redis
+             imagePullPolicy: IfNotPresent
+             livenessProbe:
+               tcpSocket:
+                  port: 6379
+               initialDelaySeconds: 60
+               timeoutSeconds: 10
+               periodSeconds: 10
+               failureThreshold: 3
+             readinessProbe:
+               tcpSocket:
+                 port: 6379
+               initialDelaySeconds: 60
+               timeoutSeconds: 10
+               periodSeconds: 10
+               failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: redis-service
+    namespace: wordpress-namespace
+spec:
+    ports:
+    - port: 6379
+    selector:
+        redis-web: redis

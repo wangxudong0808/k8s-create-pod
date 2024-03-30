@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: mysql-slave
+    namespace: wordpress-namespace
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+          value: wordpress-slave-mysql
+    serviceName: "mysql-slave-service"
+    template:
+        metadata:
+          labels:
+             value: wordpress-slave-mysql
+        spec:
+            containers:
+            - name: mysql-slave
+              image: mysql:5.7
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 3306
+              env:
+              - name: MYSQL_ROOT_PASSWORD
+                value: "DD.08.dd"
+              - name: MYSQL_DATABASE
+                value: "wordpress"
+              - name: MYSQL_USER
+                value: "admin"
+              - name: MYSQL_PASSWORD
+                value: "DD.08.dd"
+              livenessProbe:
+                  exec:
+                     command:
+                     - mysqladmin
+                     - ping
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+              readinessProbe:
+                  exec:
+                     command:
+                     - mysqladmin
+                     - ping
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+              resources:
+                limits:
+                   cpu: "2000m"
+                   memory: "2Gi"
+                requests:
+                   cpu: "1000m"
+                   memory: "1Gi"
+
+              volumeMounts:
+                - name: mysql-slave-data
+                  mountPath: /var/lib/mysql
+                - name: mysql-slave-config
+                  mountPath: /etc/mysql/conf.d/
+            volumes:
+              - name: mysql-slave-data
+                persistentVolumeClaim:
+                       claimName: mysql-slave-pvc
+              - name: mysql-slave-config
+                configMap:
+                       name: mysql-slave-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: mysql-slave-service
+    namespace: wordpress-namespace
+spec:
+    ports:
+    - port: 3306
+    selector:
+         value: wordpress-slave-mysql
